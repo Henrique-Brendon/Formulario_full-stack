@@ -22,7 +22,7 @@ public class CepUtil implements Serializable {
             throw new IOException("Falha na requisição ao consultar o CEP.");
         }
 
-        try(BufferedReader br = new BufferedReader(new InputStreamReader(conexao.getInputStream()))) {
+        try (BufferedReader br = new BufferedReader(new InputStreamReader(conexao.getInputStream(), StandardCharsets.UTF_8))) {
             StringBuilder respota = new StringBuilder();
             String inputLine;
 

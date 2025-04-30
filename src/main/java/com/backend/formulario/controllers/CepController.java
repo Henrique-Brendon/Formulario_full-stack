@@ -15,7 +15,6 @@ import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 
-
 @RestController
 @RequestMapping("/cep")
 public class CepController {
@@ -23,7 +22,6 @@ public class CepController {
     @Autowired
     private CepService cepService;
 
-    //Função auxiliar de busca do endereço
     @GetMapping("/localizarEndereco")
     public ResponseEntity<CepDTO> localizarEndereco(@RequestParam String cep) throws IOException {
         CepDTO resposta = cepService.verificarEndereco(CepUtil.consultarCep(cep));
