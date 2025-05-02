@@ -5,10 +5,10 @@ import static org.junit.jupiter.api.Assertions.*;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
-import org.mockito.internal.matchers.Null;
 import org.mockito.junit.jupiter.MockitoExtension;
 
 import com.backend.formulario.controllers.dtos.CepDTO;
+import com.backend.formulario.util.exceptions.CepFormatoInvalidoException;
 
 @ExtendWith(MockitoExtension.class)
 public class CepServiceTest {
@@ -51,5 +51,14 @@ public class CepServiceTest {
         });
 
         assertEquals("O objeto não pode estar nulo.", ex.getMessage());
+    }
+
+    @Test
+    void deveLancarJSONException_QuandoJsonMalFormatado() {
+        String jsonMalFormado = "{ \"cep\": \"05716-070\" ";
+
+        assertThrows(CepFormatoInvalidoException.class, () -> {
+            cepService.verificarEndereco(jsonMalFormado);
+        });
     }
 }
