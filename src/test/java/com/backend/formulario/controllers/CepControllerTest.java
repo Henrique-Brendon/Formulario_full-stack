@@ -56,7 +56,17 @@ public class CepControllerTest {
             .andExpect(jsonPath("$.endereco").value("Rua Itacaiúna"));
     }
     
+    @Test
+    void deveRetornar404_QuandoCepNaoEncontrado() throws Exception {
+        when(cepService.verificarEndereco(any())).thenThrow(new CepNotFoundException("CEP não encontrado"));
 
+        mockMvc.perform(get("/cep/localizarEndereco")
+                .param("cep", "00000-000"))
+                .andExpect(status().isNotFound())
+                .andExpect(jsonPath("$.status").value(404))
+                .andExpect(jsonPath("$.message").value("CEP não encontrado: 00000-000"))
+                .andExpect(jsonPath("$.path").value("/cep/localizarEndereco"));
+    }
 
 }
     
