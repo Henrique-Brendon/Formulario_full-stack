@@ -9,10 +9,10 @@ import com.backend.formulario.controllers.dtos.CepDTO;
 public class CepService {
     
     public CepDTO verificarEndereco(String endereco) {
-        if(parse(endereco) == null) {
+        if (endereco == null) {
             throw new NullPointerException("O objeto não pode estar nulo.");
         }
-
+    
         return parse(endereco);
     }
 

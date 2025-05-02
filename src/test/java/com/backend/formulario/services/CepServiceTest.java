@@ -5,6 +5,7 @@ import static org.junit.jupiter.api.Assertions.*;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
+import org.mockito.internal.matchers.Null;
 import org.mockito.junit.jupiter.MockitoExtension;
 
 import com.backend.formulario.controllers.dtos.CepDTO;
@@ -39,5 +40,16 @@ public class CepServiceTest {
         assertEquals("São Paulo", dto.cidade());
         assertEquals("Vila Andrade", dto.bairro());
         assertEquals("Rua Itacaiúna", dto.endereco());
+    }
+
+    @Test
+    void deveLancarNullPointerException_QuandoJsonForNulo() {
+        String jsonNulo = null;
+
+        Exception ex = assertThrows(NullPointerException.class, () -> {
+            cepService.verificarEndereco(jsonNulo);
+        });
+
+        assertEquals("O objeto não pode estar nulo.", ex.getMessage());
     }
 }
