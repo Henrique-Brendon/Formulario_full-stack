@@ -68,5 +68,16 @@ public class CepControllerTest {
                 .andExpect(jsonPath("$.path").value("/cep/localizarEndereco"));
     }
 
+    @Test
+    void deveRetornar400_QuandoFormatoDeCepForInvalido() throws Exception {
+        when(cepService.verificarEndereco(any())).thenThrow(new CepFormatoInvalidoException("Formato de CEP inválido"));
+            mockMvc.perform(get("/cep/localizarEndereco")
+            .param("cep", "000000-000"))
+            .andExpect(status().isBadRequest())
+            .andExpect(jsonPath("$.status").value(400))
+            .andExpect(jsonPath("$.message").value("Formato de CEP inválido: 000000-000"))
+            .andExpect(jsonPath("$.path").value("/cep/localizarEndereco"));
+    }
+
 }
     
