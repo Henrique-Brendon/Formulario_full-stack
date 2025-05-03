@@ -9,6 +9,8 @@ import java.net.URL;
 import java.net.URLEncoder;
 import java.nio.charset.StandardCharsets;
 
+import org.springframework.stereotype.Component;
+
 import com.backend.formulario.util.exceptions.CepFormatoInvalidoException;
 import com.backend.formulario.util.exceptions.CepNotFoundException;
 import com.fasterxml.jackson.databind.JsonNode;
@@ -17,9 +19,10 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import lombok.extern.slf4j.Slf4j;
 
 @Slf4j
+@Component
 public class CepUtil implements Serializable {
 
-    public static String consultarCep(String cep) throws IOException {
+    public String consultarCep(String cep) throws IOException {
         log.info("Iniciando consulta para o CEP: {}", cep);
     
         String encodedCep = URLEncoder.encode(cep, StandardCharsets.UTF_8.toString());

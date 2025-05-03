@@ -22,9 +22,12 @@ public class CepController {
     @Autowired
     private CepService cepService;
 
+    @Autowired
+    private CepUtil cepUtil;
+
     @GetMapping("/localizarEndereco")
     public ResponseEntity<CepDTO> localizarEndereco(@RequestParam String cep) throws IOException {
-        CepDTO resposta = cepService.verificarEndereco(CepUtil.consultarCep(cep));
+        CepDTO resposta = cepService.verificarEndereco(cepUtil.consultarCep(cep));
         return ResponseEntity.status(HttpStatus.OK).body(resposta);
     }
     

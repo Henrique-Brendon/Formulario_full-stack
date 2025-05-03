@@ -8,6 +8,7 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 
 import com.backend.formulario.controllers.dtos.CepDTO;
 import com.backend.formulario.services.CepService;
+import com.backend.formulario.util.CepUtil;
 import com.backend.formulario.util.exceptions.CepFormatoInvalidoException;
 import com.backend.formulario.util.exceptions.CepNotFoundException;
 import com.fasterxml.jackson.databind.ObjectMapper;
@@ -31,6 +32,9 @@ public class CepControllerTest {
 
     @MockBean
     private CepService cepService;
+
+    @MockBean
+    private CepUtil cepUtil;
 
     private CepDTO cepDTO;
 
@@ -58,7 +62,7 @@ public class CepControllerTest {
     
     @Test
     void deveRetornar404_QuandoCepNaoEncontrado() throws Exception {
-        when(cepService.verificarEndereco(any())).thenThrow(new CepNotFoundException("CEP não encontrado"));
+        when(cepService.verificarEndereco(any())).thenThrow(new CepNotFoundException("00000-000"));
 
         mockMvc.perform(get("/cep/localizarEndereco")
                 .param("cep", "00000-000"))
@@ -70,7 +74,7 @@ public class CepControllerTest {
 
     @Test
     void deveRetornar400_QuandoFormatoDeCepForInvalido() throws Exception {
-        when(cepService.verificarEndereco(any())).thenThrow(new CepFormatoInvalidoException("Formato de CEP inválido"));
+        when(cepService.verificarEndereco(any())).thenThrow(new CepFormatoInvalidoException("000000-000"));
             mockMvc.perform(get("/cep/localizarEndereco")
             .param("cep", "000000-000"))
             .andExpect(status().isBadRequest())
