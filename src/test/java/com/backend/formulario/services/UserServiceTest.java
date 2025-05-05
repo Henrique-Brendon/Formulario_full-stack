@@ -2,7 +2,7 @@ package com.backend.formulario.services;
 
 import static com.backend.formulario.common.UsuarioConstrants.USUARIO_DTO;
 import static com.backend.formulario.common.CepConstrants.CEP_INFO_DTO;
-
+import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.ArgumentMatchers.*;
 import static org.mockito.Mockito.*;
 
@@ -15,6 +15,8 @@ import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 
+import com.backend.formulario.controllers.dtos.CepDTO;
+import com.backend.formulario.controllers.dtos.CepInfoDTO;
 import com.backend.formulario.entities.Usuario;
 import com.backend.formulario.repositories.CepInfoRepository;
 import com.backend.formulario.repositories.UsuarioRepository;
@@ -50,6 +52,30 @@ public class UserServiceTest {
         // Asserts
         verify(usuarioRepository).save(any(Usuario.class));
         verify(cepInfoRepository).save(argThat(cep -> cep.getUsuarioId() == 1L));
+    }
+
+    @Test
+    void deveLancarExcecaoQuandoCepForNulo() {
+        // Act + Assert
+        IllegalArgumentException exception = assertThrows(IllegalArgumentException.class, () -> {
+            usuarioService.inserir(USUARIO_DTO, null);
+        });
+
+        assertEquals("Endereço não pode ser nulo.", exception.getMessage());
+    }
+
+    @Test
+    void deveLancarExcecaoQuandoCamposObrigatoriosDoEnderecoForemInvalidos() {
+        CepDTO cepDTO = new CepDTO("", "SP", "São Paulo", "Bairro", "Rua X");
+        CepInfoDTO cepInfoDTO = new CepInfoDTO(cepDTO, 123);
+
+        // Act + Assert 
+
+        IllegalArgumentException exception = assertThrows(IllegalArgumentException.class, () -> {
+            usuarioService.inserir(USUARIO_DTO, cepInfoDTO);
+        });
+
+        assertEquals("Todos os campos do endereço são obrigatórios e devem ser válidos.", exception.getMessage());
     }
 
 }

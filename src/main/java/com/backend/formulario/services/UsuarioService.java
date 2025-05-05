@@ -39,7 +39,7 @@ public class UsuarioService {
 
     private CepInfo validarEndereco(CepInfoDTO cepInfoDTO) {
         if(cepInfoDTO == null) {
-            throw new IllegalArgumentException("Endereço (CEP) não pode ser nulo.");
+            throw new IllegalArgumentException("Endereço não pode ser nulo.");
         }
 
         if (isVazio(cepInfoDTO.cepDTO().cep()) ||
