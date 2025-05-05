@@ -88,6 +88,44 @@
 					</excludes>
 				</configuration>
 			</plugin>
+				<!-- Jacoco: Relatório de testes -->
+				<plugin>
+					<groupId>org.jacoco</groupId>
+					<artifactId>jacoco-maven-plugin</artifactId>
+					<version>0.8.10</version>
+				
+					<!-- Configurações globais do Jacoco -->
+					<configuration>
+					<outputDirectory>${project.reporting.outputDirectory}/jacoco</outputDirectory>
+				
+					<!-- Exclusão de classes que não precisam de cobertura de testes -->
+					<excludes>
+						<!-- Classe principal da aplicação (sem lógica de negócio) -->
+						<exclude>com/backend/formulario/FormularioApplication.class</exclude>
+				
+						<!-- DTOs não são testados diretamente pois não contêm lógica -->
+						<exclude>com/backend/formulario/controllers/dtos/**</exclude>
+					</excludes>
+					</configuration>
+				
+					<executions>
+					<!-- Ativa o agente Jacoco antes da execução dos testes -->
+					<execution>
+						<goals>
+						<goal>prepare-agent</goal>
+						</goals>
+					</execution>
+				
+					<!-- Geração do relatório HTML e XML na fase prepare-package -->
+					<execution>
+						<id>report</id>
+						<phase>prepare-package</phase>
+						<goals>
+						<goal>report</goal>
+						</goals>
+					</execution>
+					</executions>
+				</plugin>
 		</plugins>
 	</build>
 
