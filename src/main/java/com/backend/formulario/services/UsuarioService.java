@@ -1,5 +1,8 @@
 package com.backend.formulario.services;
 
+import java.util.HashMap;
+import java.util.Map;
+
 import org.springframework.stereotype.Service;
 
 import com.backend.formulario.controllers.dtos.CepInfoDTO;
@@ -8,6 +11,7 @@ import com.backend.formulario.entities.CepInfo;
 import com.backend.formulario.entities.Usuario;
 import com.backend.formulario.repositories.CepInfoRepository;
 import com.backend.formulario.repositories.UsuarioRepository;
+import com.backend.formulario.util.ValidadorDeCamposObrigatorios;
 
 @Service
 public class UsuarioService {
@@ -21,19 +25,35 @@ public class UsuarioService {
     }
 
     public void inserir(UsuarioDTO usuarioDTO, CepInfoDTO cepInfoDTO) {
-        CepInfo cepInfo = validarEndereco(cepInfoDTO);
+        try {
+            if (usuarioDTO == null) {
+                throw new NullPointerException();
+            }
+            
+            Map<String, Object> campos = new HashMap<>();
+            campos.put("nome", usuarioDTO.nome());
+            campos.put("email", usuarioDTO.email());
+            campos.put("senha", usuarioDTO.senha());
+            campos.put("dataNascimento", usuarioDTO.dataNascimento());
     
-        Usuario usuario = Usuario.builder()
-            .nome(usuarioDTO.nome())
-            .dataNascimento(usuarioDTO.dataNascimento())
-            .email(usuarioDTO.email())
-            .senha(usuarioDTO.senha())
-            .build();
-
-        Usuario usuarioSalvo = usuarioRepository.save(usuario);
+            ValidadorDeCamposObrigatorios.validarCampos(campos);
+    
+            CepInfo cepInfo = validarEndereco(cepInfoDTO);
         
-        cepInfo.setUsuarioId(usuarioSalvo.getId());
-        cepInfoRepository.save(cepInfo);
+            Usuario usuario = Usuario.builder()
+                .nome(usuarioDTO.nome())
+                .dataNascimento(usuarioDTO.dataNascimento())
+                .email(usuarioDTO.email())
+                .senha(usuarioDTO.senha())
+                .build();
+    
+            Usuario usuarioSalvo = usuarioRepository.save(usuario);
+            
+            cepInfo.setUsuarioId(usuarioSalvo.getId());
+            cepInfoRepository.save(cepInfo);
+        }catch(NullPointerException e) {
+            throw e;
+        }
     }
     
 
