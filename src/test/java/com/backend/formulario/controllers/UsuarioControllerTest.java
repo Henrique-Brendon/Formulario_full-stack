@@ -120,6 +120,36 @@ public class UsuarioControllerTest {
     }
 
     @ParameterizedTest
+    @MethodSource("fornecerCamposUsuarioNull")
+    void deveRetornar400_QuandoCamposObrigatoriosEstiveremNull(
+            String nome, Instant dataNascimento, String email, String senha, String mensagemEsperada) throws Exception {
+
+        UsuarioDTO usuarioDTO = new UsuarioDTO(nome, dataNascimento, email, senha);
+        UsuarioWithCepInfoDTOs payload = new UsuarioWithCepInfoDTOs(usuarioDTO, CEP_INFO_DTO);
+
+        doThrow(new CampoObrigatorioException(mensagemEsperada))
+            .when(usuarioService).inserir(any(UsuarioDTO.class), any(CepInfoDTO.class));
+
+        mockMvc.perform(post("/usuario/inserirUsuario")
+                .contentType(MediaType.APPLICATION_JSON)
+                .content(objectMapper.writeValueAsString(payload)))
+            .andExpect(status().isBadRequest())
+            .andExpect(jsonPath("$.message").value(mensagemEsperada))
+            .andExpect(jsonPath("$.error").value("Campo obrigatório"))
+            .andExpect(jsonPath("$.path").value("/usuario/inserirUsuario"));
+    }
+
+    private static Stream<Arguments> fornecerCamposUsuarioNull() {
+        return Stream.of(
+            Arguments.of(null, Instant.now(), "email@example.com", "senha123", "O campo 'nome' não pode ser nulo."),
+            Arguments.of("João", null, "email@example.com", "senha123", "O campo 'dataNascimento' não pode ser nulo."),
+            Arguments.of("João", Instant.now(), null, "senha123", "O campo 'email' não pode ser nulo."),
+            Arguments.of("João", Instant.now(), "email@example.com", null, "O campo 'senha' não pode ser nulo.")
+        );
+    }
+
+
+    @ParameterizedTest
     @MethodSource("fornecerCamposCepVazio")
     void deveRetornar400_QuandoCamposObrigatoriosDoCepForemVazios(
             String cep, String estado, String cidade, String bairro, String endereco, String numeroCasa, String mensagemEsperada) throws Exception {
@@ -146,6 +176,36 @@ public class UsuarioControllerTest {
             Arguments.of("12345678", "", "São Paulo", "Bairro", "Rua A", "123", "O campo 'estado' não pode ser vazio."),
             Arguments.of("12345678", "SP", "", "Bairro", "Rua A", "123", "O campo 'cidade' não pode ser vazio."),
             Arguments.of("12345678", "SP", "São Paulo", "Bairro", "Rua A", "", "O campo 'numero de casa' não pode ser vazio.")
+        );
+    }
+
+    @ParameterizedTest
+    @MethodSource("fornecerCamposCepNull")
+    void deveRetornar400_QuandoCamposObrigatoriosDoCepForemNull(
+            String cep, String estado, String cidade, String bairro, String endereco, String numeroCasa, String mensagemEsperada) throws Exception {
+
+        CepDTO cepDTO = new CepDTO(cep, estado, cidade, bairro, endereco);
+        CepInfoDTO cepInfoDTO = new CepInfoDTO(cepDTO, numeroCasa);
+        UsuarioWithCepInfoDTOs payload = new UsuarioWithCepInfoDTOs(USUARIO_DTO, cepInfoDTO);
+
+        doThrow(new CampoObrigatorioException(mensagemEsperada))
+            .when(usuarioService).inserir(any(UsuarioDTO.class), any(CepInfoDTO.class));
+
+        mockMvc.perform(post("/usuario/inserirUsuario")
+                .contentType(MediaType.APPLICATION_JSON)
+                .content(objectMapper.writeValueAsString(payload)))
+            .andExpect(status().isBadRequest())
+            .andExpect(jsonPath("$.message").value(mensagemEsperada))
+            .andExpect(jsonPath("$.error").value("Campo obrigatório"))
+            .andExpect(jsonPath("$.path").value("/usuario/inserirUsuario"));
+    }
+
+    private static Stream<Arguments> fornecerCamposCepNull() {
+        return Stream.of(
+            Arguments.of(null, "SP", "São Paulo", "Bairro", "Rua A", "123", "O campo 'cep' não pode ser nulo."),
+            Arguments.of("12345678", null, "São Paulo", "Bairro", "Rua A", "123", "O campo 'estado' não pode ser nulo."),
+            Arguments.of("12345678", "SP", null, "Bairro", "Rua A", "123", "O campo 'cidade' não pode ser nulo."),
+            Arguments.of("12345678", "SP", "São Paulo", "Bairro", "Rua A", null, "O campo 'numero de casa' não pode ser nulo.")
         );
     }
 
