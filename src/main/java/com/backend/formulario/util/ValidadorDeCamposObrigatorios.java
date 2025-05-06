@@ -18,11 +18,9 @@ public class ValidadorDeCamposObrigatorios {
     public static void validarCampos(Map<String, ?> campos) {
         for (Map.Entry<String, ?> campo : campos.entrySet()) {
             if (campo.getValue() == null) {
-                // Se for objeto nulo, lança NullPointerException
-                throw new NullPointerException("O campo '" + campo.getKey() + "' não pode ser nulo.");
+                throw new CampoObrigatorioException("O campo '" + campo.getKey() + "' não pode ser nulo.");
             }
             
-            // Se for atributo simples (String, etc.) e vazio, lança CampoObrigatorioException
             if (campo.getValue() instanceof String str && str.trim().isEmpty()) {
                 throw new CampoObrigatorioException("O campo '" + campo.getKey() + "' não pode ser vazio.");
             }

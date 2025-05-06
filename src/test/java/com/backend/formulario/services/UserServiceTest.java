@@ -6,20 +6,28 @@ import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.ArgumentMatchers.*;
 import static org.mockito.Mockito.*;
 
+import java.time.Instant;
 import java.time.LocalDate;
 import java.time.ZoneId;
+import java.util.stream.Stream;
 
+import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
+import org.junit.jupiter.params.ParameterizedTest;
+import org.junit.jupiter.params.provider.Arguments;
+import org.junit.jupiter.params.provider.MethodSource;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 
 import com.backend.formulario.controllers.dtos.CepDTO;
 import com.backend.formulario.controllers.dtos.CepInfoDTO;
+import com.backend.formulario.controllers.dtos.UsuarioDTO;
 import com.backend.formulario.entities.Usuario;
 import com.backend.formulario.repositories.CepInfoRepository;
 import com.backend.formulario.repositories.UsuarioRepository;
+import com.backend.formulario.util.exceptions.CampoObrigatorioException;
 
 @ExtendWith(MockitoExtension.class)
 public class UserServiceTest {
@@ -64,18 +72,57 @@ public class UserServiceTest {
         assertEquals("Endereço não pode ser nulo.", exception.getMessage());
     }
 
-    @Test
-    void deveLancarExcecaoQuandoCamposObrigatoriosDoEnderecoForemInvalidos() {
-        CepDTO cepDTO = new CepDTO("", "SP", "São Paulo", "Bairro", "Rua X");
-        CepInfoDTO cepInfoDTO = new CepInfoDTO(cepDTO, 123);
+    @ParameterizedTest
+    @MethodSource("fornecerCamposInvalidos")
+    void deveLancarExcecaoQuandoCamposObrigatoriosEstiveremVazios(
+            String nome, Instant dataNascimento, String email, String senha, String mensagemEsperada) {
 
-        // Act + Assert 
+        // Arrange
+        UsuarioDTO usuarioDTO = new UsuarioDTO(nome, dataNascimento, email, senha);
 
-        IllegalArgumentException exception = assertThrows(IllegalArgumentException.class, () -> {
+        // Act & Assert
+        CampoObrigatorioException exception = Assertions.assertThrows(CampoObrigatorioException.class, () -> {
+            usuarioService.inserir(usuarioDTO, CEP_INFO_DTO);
+        });
+
+        // Assertiva da mensagem
+        assertEquals(mensagemEsperada, exception.getMessage());
+    }
+
+    private static Stream<Arguments> fornecerCamposInvalidos() {
+        return Stream.of(
+            Arguments.of("", Instant.now(), "email@example.com", "senha123", "O campo 'nome' não pode ser vazio."),
+            Arguments.of("João", null, "email@example.com", "senha123", "O campo 'dataNascimento' não pode ser nulo."),
+            Arguments.of("João", Instant.now(), "", "senha123", "O campo 'email' não pode ser vazio."),
+            Arguments.of("João", Instant.now(), "email@example.com", "", "O campo 'senha' não pode ser vazio.")
+        );
+    }
+
+    @ParameterizedTest
+    @MethodSource("fornecerCamposCepInvalidos")
+    void deveLancarExcecaoQuandoCamposCepObrigatoriosEstiveremVazios(
+            String cep, String estado, String cidade, String bairro, String endereco, String numeroCasa, String mensagemEsperada) {
+
+        // Arrange
+        CepInfoDTO cepInfoDTO = new CepInfoDTO(new CepDTO(cep, estado, cidade, bairro, endereco), numeroCasa);
+
+        // Act & Assert
+        CampoObrigatorioException exception = Assertions.assertThrows(CampoObrigatorioException.class, () -> {
             usuarioService.inserir(USUARIO_DTO, cepInfoDTO);
         });
 
-        assertEquals("Todos os campos do endereço são obrigatórios e devem ser válidos.", exception.getMessage());
+        // Assertiva da mensagem
+        assertEquals(mensagemEsperada, exception.getMessage());
     }
+
+    private static Stream<Arguments> fornecerCamposCepInvalidos() {
+        return Stream.of(
+            Arguments.of("", "SP", "São Paulo", "Bairro", "Rua A", "123", "O campo 'cep' não pode ser vazio."),
+            Arguments.of("12345678", "", "São Paulo", "Bairro", "Rua A", "123", "O campo 'estado' não pode ser vazio."),
+            Arguments.of("12345678", "SP", "", "Bairro", "Rua A", "123", "O campo 'cidade' não pode ser vazio."),
+            Arguments.of("12345678", "SP", "São Paulo", "Bairro", "Rua A", "", "O campo 'numero de casa' não pode ser vazio.")
+        );
+    }
+
 
 }

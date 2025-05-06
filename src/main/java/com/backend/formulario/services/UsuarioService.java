@@ -30,15 +30,11 @@ public class UsuarioService {
                 throw new NullPointerException();
             }
             
-            Map<String, Object> campos = new HashMap<>();
-            campos.put("nome", usuarioDTO.nome());
-            campos.put("email", usuarioDTO.email());
-            campos.put("senha", usuarioDTO.senha());
-            campos.put("dataNascimento", usuarioDTO.dataNascimento());
+            validarCamposObrigatoriosUsuario(usuarioDTO);
+
+            validarCamposObrigatoriosCep(cepInfoDTO);
     
-            ValidadorDeCamposObrigatorios.validarCampos(campos);
-    
-            CepInfo cepInfo = validarEndereco(cepInfoDTO);
+            CepInfo cepInfo = buildarEndereco(cepInfoDTO);
         
             Usuario usuario = Usuario.builder()
                 .nome(usuarioDTO.nome())
@@ -56,26 +52,30 @@ public class UsuarioService {
         }
     }
     
-
-    private CepInfo validarEndereco(CepInfoDTO cepInfoDTO) {
-        if(cepInfoDTO == null) {
+    private void validarCamposObrigatoriosUsuario(UsuarioDTO usuarioDTO) {
+        Map<String, Object> campos = new HashMap<>();
+        campos.put("nome", usuarioDTO.nome());
+        campos.put("email", usuarioDTO.email());
+        campos.put("senha", usuarioDTO.senha());
+        campos.put("dataNascimento", usuarioDTO.dataNascimento());
+    
+        ValidadorDeCamposObrigatorios.validarCampos(campos);
+    }
+    
+    private void validarCamposObrigatoriosCep(CepInfoDTO cepInfoDTO) {
+        if (cepInfoDTO == null || cepInfoDTO.cepDTO() == null) {
             throw new IllegalArgumentException("Endereço não pode ser nulo.");
         }
-
-        if (isVazio(cepInfoDTO.cepDTO().cep()) ||
-            isVazio(cepInfoDTO.cepDTO().estado()) ||
-            isVazio(cepInfoDTO.cepDTO().cidade()) ||
-            // Algumas localizações não tem bairro e endereço
-            cepInfoDTO.numeroCasa() <= 0) {
-            throw new IllegalArgumentException("Todos os campos do endereço são obrigatórios e devem ser válidos.");
-        }
-
-        return buildarEndereco(cepInfoDTO);
+    
+        Map<String, Object> campos = new HashMap<>();
+        campos.put("cep", cepInfoDTO.cepDTO().cep());
+        campos.put("estado", cepInfoDTO.cepDTO().estado());
+        campos.put("cidade", cepInfoDTO.cepDTO().cidade());
+        campos.put("numero de casa", cepInfoDTO.numeroCasa());
+    
+        ValidadorDeCamposObrigatorios.validarCampos(campos);
     }
-
-    private boolean isVazio(String valor) {
-        return valor == null || valor.trim().isEmpty();
-    }
+    
 
     private CepInfo buildarEndereco(CepInfoDTO cepInfoDTO) {
         CepInfo cepInfo = CepInfo.builder()
