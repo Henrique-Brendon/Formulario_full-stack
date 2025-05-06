@@ -47,7 +47,7 @@ public class UsuarioControllerTest {
             .andExpect(jsonPath("$.cepInfoDTO.cepDTO.cidade").value("São Paulo"))
             .andExpect(jsonPath("$.cepInfoDTO.cepDTO.bairro").value("Vila Andrade"))
             .andExpect(jsonPath("$.cepInfoDTO.cepDTO.endereco").value("Rua Itacaiúna"))
-            .andExpect(jsonPath("$.cepInfoDTO.numeroCasa").value(22));
+            .andExpect(jsonPath("$.cepInfoDTO.numeroCasa").value("22"));
     }
     
 }

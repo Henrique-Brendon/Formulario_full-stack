@@ -22,7 +22,7 @@ public class CepInfo {
     private String cidade;
     private String bairro;
     private String endereco;
-    private int numCasa;
+    private String numCasa;
 
     private Long usuarioId;
 }
