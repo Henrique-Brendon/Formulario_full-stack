@@ -27,7 +27,7 @@ public class UsuarioService {
     public void inserir(UsuarioDTO usuarioDTO, CepInfoDTO cepInfoDTO) {
         try {
             if (usuarioDTO == null) {
-                throw new NullPointerException();
+                throw new NullPointerException("UsuarioDTO");
             }
             
             validarCamposObrigatoriosUsuario(usuarioDTO);

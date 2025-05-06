@@ -27,16 +27,25 @@ public class GlobalExceptionHandler {
 
         return new ResponseEntity<>(error, HttpStatus.BAD_REQUEST);
     }
-    
+
     @ExceptionHandler(NullPointerException.class)
     public ResponseEntity<ErrorResponse> handlerNullPointerException(
         NullPointerException ex, HttpServletRequest request) {
-
+    
+        String detailedMessage = "Um valor nulo foi encontrado onde não era esperado.";
+        if (ex.getMessage() != null) {
+            if (ex.getMessage().equals("UsuarioDTO")) {
+                detailedMessage = "O objeto 'UsuarioDTO' está nulo.";
+            } else if (ex.getMessage().equals("cepInfoDTO")) {
+                detailedMessage = "O objeto 'CepInfoDTO' está nulo.";
+            }
+        }
+    
         ErrorResponse errorResponse = new ErrorResponse(
             HttpStatus.BAD_REQUEST.value(), "Null Pointer Exception",
-            "Um valor nulo foi encontrado onde não era esperado.", request.getRequestURI()
+            detailedMessage, request.getRequestURI()
         );
-
+    
         return new ResponseEntity<>(errorResponse, HttpStatus.BAD_REQUEST);
     }
     
