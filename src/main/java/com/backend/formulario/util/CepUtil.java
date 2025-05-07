@@ -5,8 +5,12 @@ import java.io.IOException;
 import java.io.InputStreamReader;
 import java.io.Serializable;
 import java.net.HttpURLConnection;
+import java.net.URI;
 import java.net.URL;
 import java.net.URLEncoder;
+import java.net.http.HttpClient;
+import java.net.http.HttpRequest;
+import java.net.http.HttpResponse;
 import java.nio.charset.StandardCharsets;
 
 import org.springframework.stereotype.Component;
@@ -22,50 +26,46 @@ import lombok.extern.slf4j.Slf4j;
 @Component
 public class CepUtil implements Serializable {
 
-    public String consultarCep(String cep) throws IOException {
-        log.info("Iniciando consulta para o CEP: {}", cep);
-    
-        String encodedCep = URLEncoder.encode(cep, StandardCharsets.UTF_8.toString());
-        String urlString = String.format("https://viacep.com.br/ws/%s/json", encodedCep);
-    
-        log.debug("URL da requisição: {}", urlString);
-    
-        URL url = new URL(urlString);
-        HttpURLConnection conexao = (HttpURLConnection) url.openConnection();
-        conexao.setRequestMethod("GET");
-        conexao.setRequestProperty("Accept", "application/json");
-    
-        int statusCode = conexao.getResponseCode();
+    private final HttpClient httpClient;
+    private final ObjectMapper objectMapper = new ObjectMapper();
 
-        if (statusCode == 400) {
+    public CepUtil(HttpClient httpClient) {
+        this.httpClient = httpClient;
+    }
+
+    public String consultarCep(String cep) throws IOException, InterruptedException  {
+        log.info("Iniciando consulta para o CEP: {}", cep);
+
+        String encodedCep = URLEncoder.encode(cep, StandardCharsets.UTF_8.toString());
+        String url = String.format("https://viacep.com.br/ws/%s/json", encodedCep);
+
+        log.debug("URL da requisição: {}", url);
+
+        HttpRequest request = HttpRequest.newBuilder()
+            .uri(URI.create(url))
+            .header("Accept", "application/json")
+            .GET()
+            .build();
+
+        HttpResponse<String> resposta = httpClient.send(request, HttpResponse.BodyHandlers.ofString());
+        int statusCode = resposta.statusCode();
+        if(resposta.statusCode() == 400) {
             log.error("CEP com formato inválido: {}", cep);
             throw new CepFormatoInvalidoException(cep);
         }
 
-    
-        if (statusCode != 200) {
+        if(resposta.statusCode() != 200) {
             log.error("Erro ao consultar CEP {}. HTTP status: {}", cep, statusCode);
-            throw new IOException("Erro ao consultar o CEP.");
+            throw new IOException("Erro ao consultar cep");
         }
-    
-        try (BufferedReader br = new BufferedReader(new InputStreamReader(conexao.getInputStream(), StandardCharsets.UTF_8))) {
-            StringBuilder resposta = new StringBuilder();
-            String inputLine;
-    
-            while ((inputLine = br.readLine()) != null) {
-                resposta.append(inputLine);
-            }
-    
-            ObjectMapper objectMapper = new ObjectMapper();
-            JsonNode rootNode = objectMapper.readTree(resposta.toString());
-    
-            if (rootNode.has("erro") && rootNode.get("erro").asBoolean()) {
-                log.warn("CEP não encontrado: {}", cep);
-                throw new CepNotFoundException(cep);
-            }
-    
-            return resposta.toString();
+
+        JsonNode rootNode = objectMapper.readTree(resposta.body());
+
+        if(rootNode.has("erro") && rootNode.get("erro").asBoolean()) {
+            throw new CepNotFoundException(cep);
         }
+
+        return resposta.body();
     }
 
 }

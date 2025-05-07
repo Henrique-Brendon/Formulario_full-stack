@@ -26,7 +26,7 @@ public class CepController {
     private CepUtil cepUtil;
 
     @GetMapping("/localizarEndereco")
-    public ResponseEntity<CepDTO> localizarEndereco(@RequestParam String cep) throws IOException {
+    public ResponseEntity<CepDTO> localizarEndereco(@RequestParam String cep) throws IOException, InterruptedException {
         CepDTO resposta = cepService.verificarEndereco(cepUtil.consultarCep(cep));
         return ResponseEntity.status(HttpStatus.OK).body(resposta);
     }
