@@ -61,10 +61,29 @@ public class UserServiceTest {
     }
 
     @Test
-    void deveLancarExcecaoQuandoCepForNulo() {
-        // Act + Assert
-        IllegalArgumentException exception = assertThrows(IllegalArgumentException.class, () -> {
+    void deveLancarExcecaoQuandoUsuarioForNulo() {
+        NullPointerException exception = assertThrows(NullPointerException.class, () -> {
+            usuarioService.inserir(null, CEP_INFO_DTO);
+        });
+
+        assertEquals("UsuarioDTO", exception.getMessage());
+    }
+
+    @Test
+    void deveLancarExcecaoQuandoCepInfoDTOForNulo() {
+        NullPointerException exception = assertThrows(NullPointerException.class, () -> {
             usuarioService.inserir(USUARIO_DTO, null);
+        });
+
+        assertEquals("CepInfoDTO", exception.getMessage());
+    }
+
+    @Test
+    void deveLancarExcecaoQuandoCepDTOForNulo() {
+        // Act + Assert
+        CepDTO cepInvalido = null;
+        IllegalArgumentException exception = assertThrows(IllegalArgumentException.class, () -> {
+            usuarioService.inserir(USUARIO_DTO, new CepInfoDTO(cepInvalido, "22"));
         });
 
         assertEquals("Endereço não pode ser nulo.", exception.getMessage());

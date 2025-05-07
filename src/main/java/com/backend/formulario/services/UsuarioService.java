@@ -29,6 +29,10 @@ public class UsuarioService {
             if (usuarioDTO == null) {
                 throw new NullPointerException("UsuarioDTO");
             }
+
+            if (cepInfoDTO == null) {
+                throw new NullPointerException("CepInfoDTO");
+            }
             
             validarCamposObrigatoriosUsuario(usuarioDTO);
 
@@ -63,7 +67,7 @@ public class UsuarioService {
     }
     
     private void validarCamposObrigatoriosCep(CepInfoDTO cepInfoDTO) {
-        if (cepInfoDTO == null || cepInfoDTO.cepDTO() == null) {
+        if (cepInfoDTO.cepDTO() == null) {
             throw new IllegalArgumentException("Endereço não pode ser nulo.");
         }
     
