@@ -40,6 +40,21 @@ public class CepUtilTest {
     }
 
     @Test
+    void testConsultarCep_respostaComSucesso() throws Exception {
+        String cep = "12345678";
+        String respostaBody = "{\"logradouro\":\"Rua Exemplo\"}";
+        when(httpResponse.statusCode()).thenReturn(200);
+        when(httpResponse.body()).thenReturn(respostaBody);
+        when(httpClient.send(any(HttpRequest.class), eq(HttpResponse.BodyHandlers.ofString())))
+            .thenReturn(httpResponse);
+
+        String result = cepUtil.consultarCep(cep);
+
+        assertNotNull(result);
+        assertEquals(respostaBody, result);
+    }
+
+    @Test
     void testConsultarCep_statusCodeNao200_deveLancarIOException() throws IOException, InterruptedException {
         String cep = "12345678";
 
