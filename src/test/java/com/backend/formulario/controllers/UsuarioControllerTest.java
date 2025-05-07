@@ -8,7 +8,6 @@ import static org.springframework.test.web.servlet.request.MockMvcRequestBuilder
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.*;
 
 import java.time.Instant;
-import java.util.stream.Stream;
 
 import com.backend.formulario.controllers.dtos.CepDTO;
 import com.backend.formulario.controllers.dtos.CepInfoDTO;
@@ -21,7 +20,6 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.params.ParameterizedTest;
-import org.junit.jupiter.params.provider.Arguments;
 import org.junit.jupiter.params.provider.MethodSource;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.WebMvcTest;
@@ -109,14 +107,6 @@ public class UsuarioControllerTest {
             .andExpect(jsonPath("$.message").value(mensagemEsperada))
             .andExpect(jsonPath("$.error").value("Campo obrigatório"))
             .andExpect(jsonPath("$.path").value("/usuario/inserirUsuario"));
-    }
-
-    private static Stream<Arguments> fornecerUsuarioComCamposInvalidos() {
-        return Stream.of(
-            Arguments.of("", Instant.now(), "email@example.com", "senha123", "O campo 'nome' não pode ser vazio."),
-            Arguments.of("João", Instant.now(), "", "senha123", "O campo 'email' não pode ser vazio."),
-            Arguments.of("João", Instant.now(), "email@example.com", "", "O campo 'senha' não pode ser vazio.")
-        );
     }
 
     @ParameterizedTest

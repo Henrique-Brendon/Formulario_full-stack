@@ -4,7 +4,11 @@ import static com.backend.formulario.common.CepConstrants.*;
 import static com.backend.formulario.common.UsuarioConstrants.*;
 import static org.junit.jupiter.api.Assertions.*;
 
+import java.time.Instant;
+
 import org.junit.jupiter.api.Test;
+import org.junit.jupiter.params.ParameterizedTest;
+import org.junit.jupiter.params.provider.MethodSource;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.boot.test.web.client.TestRestTemplate;
@@ -16,6 +20,9 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 
+import com.backend.formulario.controllers.dtos.CepDTO;
+import com.backend.formulario.controllers.dtos.CepInfoDTO;
+import com.backend.formulario.controllers.dtos.UsuarioDTO;
 import com.backend.formulario.controllers.dtos.UsuarioWithCepInfoDTOs;
 import com.fasterxml.jackson.databind.ObjectMapper;
 
@@ -108,4 +115,120 @@ public class UsuarioIt {
         assertTrue(response.getBody().contains("\"message\":\"O objeto 'CepInfoDTO' está nulo.\""));
         assertTrue(response.getBody().contains("\"path\":\"/usuario/inserirUsuario\""));
     }
+
+    @ParameterizedTest
+    @MethodSource("com.backend.formulario.testdata.UsuarioTestDataProvider#fornecerCamposUsuarioVazio")
+    void deveRetornar400_QuandoCamposObrigatoriosDoUsuarioEstiveremVazios(String nome, Instant dataNascimento, String email, String senha, String mensagemEsperada) throws Exception {
+        UsuarioDTO usuarioDTO = new UsuarioDTO(nome, dataNascimento, email, senha);
+        UsuarioWithCepInfoDTOs payload = new UsuarioWithCepInfoDTOs(usuarioDTO, CEP_INFO_DTO);
+
+        HttpHeaders headers = new HttpHeaders();
+        headers.setContentType(MediaType.APPLICATION_JSON);
+
+        HttpEntity<String> request = new HttpEntity<>(
+            objectMapper.writeValueAsString(payload),
+            headers
+        );
+
+        String url = "http://localhost:" + port + "/usuario/inserirUsuario";
+
+        ResponseEntity<String> response = restTemplate.exchange(
+            url, HttpMethod.POST, request, String.class
+        );
+
+        assertEquals(HttpStatus.BAD_REQUEST, response.getStatusCode());
+        assertNotNull(response.getBody());
+        assertTrue(response.getBody().contains("\"message\":\"" + mensagemEsperada + "\""));
+        assertTrue(response.getBody().contains("\"error\":\"Campo obrigatório\""));
+        assertTrue(response.getBody().contains("\"path\":\"/usuario/inserirUsuario\""));
+    }
+
+    @ParameterizedTest
+    @MethodSource("com.backend.formulario.testdata.UsuarioTestDataProvider#fornecerCamposUsuarioNull")
+    void deveRetornar400_QuandoCamposObrigatoriosDoUsuarioEstiveremNull(String nome, Instant dataNascimento, String email, String senha, String mensagemEsperada) throws Exception {
+        UsuarioDTO usuarioDTO = new UsuarioDTO(nome, dataNascimento, email, senha);
+        UsuarioWithCepInfoDTOs payload = new UsuarioWithCepInfoDTOs(usuarioDTO, CEP_INFO_DTO);
+
+        HttpHeaders headers = new HttpHeaders();
+        headers.setContentType(MediaType.APPLICATION_JSON);
+
+        HttpEntity<String> request = new HttpEntity<>(
+            objectMapper.writeValueAsString(payload),
+            headers
+        );
+
+        String url = "http://localhost:" + port + "/usuario/inserirUsuario";
+
+        ResponseEntity<String> response = restTemplate.exchange(
+            url, HttpMethod.POST, request, String.class
+        );
+
+        assertEquals(HttpStatus.BAD_REQUEST, response.getStatusCode());
+        assertNotNull(response.getBody());
+        assertTrue(response.getBody().contains("\"message\":\"" + mensagemEsperada + "\""));
+        assertTrue(response.getBody().contains("\"error\":\"Campo obrigatório\""));
+        assertTrue(response.getBody().contains("\"path\":\"/usuario/inserirUsuario\""));
+    }
+
+    @ParameterizedTest
+    @MethodSource("com.backend.formulario.testdata.UsuarioTestDataProvider#fornecerCamposCepVazios")
+    void deveRetornar400_QuandoCamposObrigatoriosDoCepForemVazios(
+            String cep, String estado, String cidade, String bairro, String endereco, String numeroCasa, String mensagemEsperada) throws Exception {
+
+        CepDTO cepDTO = new CepDTO(cep, estado, cidade, bairro, endereco);
+        CepInfoDTO cepInfoDTO = new CepInfoDTO(cepDTO, numeroCasa);
+        UsuarioWithCepInfoDTOs payload = new UsuarioWithCepInfoDTOs(USUARIO_DTO, cepInfoDTO);
+
+        HttpHeaders headers = new HttpHeaders();
+        headers.setContentType(MediaType.APPLICATION_JSON);
+
+        HttpEntity<String> request = new HttpEntity<>(
+            objectMapper.writeValueAsString(payload),
+            headers
+        );
+
+        String url = "http://localhost:" + port + "/usuario/inserirUsuario";
+
+        ResponseEntity<String> response = restTemplate.exchange(
+            url, HttpMethod.POST, request, String.class
+        );
+
+        assertEquals(HttpStatus.BAD_REQUEST, response.getStatusCode());
+        assertNotNull(response.getBody());
+        assertTrue(response.getBody().contains("\"message\":\"" + mensagemEsperada + "\""));
+        assertTrue(response.getBody().contains("\"error\":\"Campo obrigatório\""));
+        assertTrue(response.getBody().contains("\"path\":\"/usuario/inserirUsuario\""));
+    }
+
+    @ParameterizedTest
+    @MethodSource("com.backend.formulario.testdata.UsuarioTestDataProvider#fornecerCamposCepNull")
+    void deveRetornar400_QuandoCamposObrigatoriosDoCepForemNull(
+            String cep, String estado, String cidade, String bairro, String endereco, String numeroCasa, String mensagemEsperada) throws Exception {
+
+        CepDTO cepDTO = new CepDTO(cep, estado, cidade, bairro, endereco);
+        CepInfoDTO cepInfoDTO = new CepInfoDTO(cepDTO, numeroCasa);
+        UsuarioWithCepInfoDTOs payload = new UsuarioWithCepInfoDTOs(USUARIO_DTO, cepInfoDTO);
+
+        HttpHeaders headers = new HttpHeaders();
+        headers.setContentType(MediaType.APPLICATION_JSON);
+
+        HttpEntity<String> request = new HttpEntity<>(
+            objectMapper.writeValueAsString(payload),
+            headers
+        );
+
+        String url = "http://localhost:" + port + "/usuario/inserirUsuario";
+
+        ResponseEntity<String> response = restTemplate.exchange(
+            url, HttpMethod.POST, request, String.class
+        );
+
+        assertEquals(HttpStatus.BAD_REQUEST, response.getStatusCode());
+        assertNotNull(response.getBody());
+        assertTrue(response.getBody().contains("\"message\":\"" + mensagemEsperada + "\""));
+        assertTrue(response.getBody().contains("\"error\":\"Campo obrigatório\""));
+        assertTrue(response.getBody().contains("\"path\":\"/usuario/inserirUsuario\""));
+    }
+
+
 }
