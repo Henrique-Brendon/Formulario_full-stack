@@ -66,5 +66,18 @@ public class CepUtilTest {
             assertEquals("Erro ao consultar cep", thrown.getMessage());
     }
 
-
+    @Test
+    void testConsultarCep_respostaComErro_noCampoErro_deveLancarCepNotFoundException() throws Exception {
+        String cep = "12345678";
+        String respostaBody = "{\"erro\": true}";
+    
+        when(httpResponse.statusCode()).thenReturn(200);
+        when(httpResponse.body()).thenReturn(respostaBody);
+        when(httpClient.send(any(HttpRequest.class), eq(HttpResponse.BodyHandlers.ofString())))
+            .thenReturn(httpResponse);
+    
+        CepNotFoundException thrown = assertThrows(CepNotFoundException.class, () -> cepUtil.consultarCep(cep));
+        assertEquals("CEP não encontrado: " + cep, thrown.getMessage());
+    }
+    
 }
