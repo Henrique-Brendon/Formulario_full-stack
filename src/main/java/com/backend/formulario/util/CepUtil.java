@@ -20,6 +20,7 @@ import com.backend.formulario.util.exceptions.CepNotFoundException;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 
+import io.github.resilience4j.circuitbreaker.annotation.CircuitBreaker;
 import lombok.extern.slf4j.Slf4j;
 
 @Slf4j
@@ -33,6 +34,7 @@ public class CepUtil implements Serializable {
         this.httpClient = httpClient;
     }
 
+    @CircuitBreaker(name = "cepService", fallbackMethod = "fallbackConsultarCep")
     public String consultarCep(String cep) throws IOException, InterruptedException  {
         log.info("Iniciando consulta para o CEP: {}", cep);
 
@@ -66,6 +68,11 @@ public class CepUtil implements Serializable {
         }
 
         return resposta.body();
+    }
+
+    public String fallbackConsultarCep(String cep, Throwable ex) {
+        log.warn("Fallback ativado para CEP {}. Motivo: {}", cep, ex.getMessage());
+        return "{\"erro\": true, \"mensagem\": \"Serviço temporariamente indisponível\"}";
     }
 
 }
