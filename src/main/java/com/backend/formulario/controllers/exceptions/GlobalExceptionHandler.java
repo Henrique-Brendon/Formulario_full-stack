@@ -1,5 +1,10 @@
 package com.backend.formulario.controllers.exceptions;
 
+import java.time.Instant;
+import java.time.OffsetDateTime;
+import java.util.HashMap;
+import java.util.Map;
+
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.ControllerAdvice;
@@ -29,25 +34,32 @@ public class GlobalExceptionHandler {
     }
 
     @ExceptionHandler(NullPointerException.class)
-    public ResponseEntity<ErrorResponse> handlerNullPointerException(
-        NullPointerException ex, HttpServletRequest request) {
-    
-        String detailedMessage = "Um valor nulo foi encontrado onde não era esperado.";
-        if (ex.getMessage() != null) {
-            if (ex.getMessage().equals("UsuarioDTO")) {
-                detailedMessage = "O objeto 'UsuarioDTO' está nulo.";
-            } else if (ex.getMessage().equals("cepInfoDTO")) {
-                detailedMessage = "O objeto 'CepInfoDTO' está nulo.";
-            }
+    public ResponseEntity<Map<String, Object>> handleNullPointerException(
+            NullPointerException ex,
+            HttpServletRequest request
+    ) {
+        String rawMessage = ex.getMessage();
+        String formattedMessage;
+
+        if (rawMessage == null || rawMessage.isBlank()) {
+            formattedMessage = "Um valor nulo foi encontrado onde não era esperado.";
+        } else {
+            formattedMessage = "O objeto '" + 
+                Character.toUpperCase(rawMessage.charAt(0)) + 
+                rawMessage.substring(1) + 
+                "' está nulo.";
         }
-    
-        ErrorResponse errorResponse = new ErrorResponse(
-            HttpStatus.BAD_REQUEST.value(), "Null Pointer Exception",
-            detailedMessage, request.getRequestURI()
-        );
-    
-        return new ResponseEntity<>(errorResponse, HttpStatus.BAD_REQUEST);
+
+        Map<String, Object> response = new HashMap<>();
+        response.put("status", HttpStatus.BAD_REQUEST.value());
+        response.put("error", "Null Pointer Exception");
+        response.put("message", formattedMessage);
+        response.put("path", request.getRequestURI());
+        response.put("timestamp", OffsetDateTime.now());
+
+        return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(response);
     }
+
     
     @ExceptionHandler(CepNotFoundException.class)
     public ResponseEntity<ErrorResponse> handleCepNotFoundException(

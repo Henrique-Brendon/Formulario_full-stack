@@ -59,35 +59,20 @@ public class UsuarioControllerTest {
             .andExpect(jsonPath("$.cepInfoDTO.numeroCasa").value("22"));
     }
 
-    @Test
-    void deveRetornar400_QuandoUsuarioDTOForNulo() throws Exception {
-        UsuarioWithCepInfoDTOs payload = new UsuarioWithCepInfoDTOs(null, CEP_INFO_DTO);
+    @ParameterizedTest
+    @MethodSource("com.backend.formulario.testdata.UsuarioTestDataProvider#fornecerObjetosNulos")
+    void deveRetornar400_QuandoObjetosDTOForemNulos(UsuarioDTO usuarioDTO, CepInfoDTO cepInfoDTO, String campoNulo) throws Exception {
+        UsuarioWithCepInfoDTOs payload = new UsuarioWithCepInfoDTOs(usuarioDTO, cepInfoDTO);
     
-        doThrow(new NullPointerException("UsuarioDTO"))
-            .when(usuarioService).inserir(isNull(), any(CepInfoDTO.class));
-    
-        mockMvc.perform(post("/usuario/inserirUsuario")
-                .contentType(MediaType.APPLICATION_JSON)
-                .content(objectMapper.writeValueAsString(payload)))
-            .andExpect(status().isBadRequest())
-            .andExpect(jsonPath("$.error").value("Null Pointer Exception"))
-            .andExpect(jsonPath("$.message").value("O objeto 'UsuarioDTO' está nulo."))
-            .andExpect(jsonPath("$.path").value("/usuario/inserirUsuario"));
-    }
-
-    @Test
-    void deveRetornar400_QuandoCepInfoDTOForNulo() throws Exception {
-        UsuarioWithCepInfoDTOs payload = new UsuarioWithCepInfoDTOs(USUARIO_DTO, null);
-    
-        doThrow(new NullPointerException("cepInfoDTO"))
-            .when(usuarioService).inserir(any(UsuarioDTO.class), isNull());
+        doThrow(new NullPointerException(campoNulo))
+            .when(usuarioService).inserir(any(), any());
     
         mockMvc.perform(post("/usuario/inserirUsuario")
                 .contentType(MediaType.APPLICATION_JSON)
                 .content(objectMapper.writeValueAsString(payload)))
             .andExpect(status().isBadRequest())
             .andExpect(jsonPath("$.error").value("Null Pointer Exception"))
-            .andExpect(jsonPath("$.message").value("O objeto 'CepInfoDTO' está nulo."))
+            .andExpect(jsonPath("$.message").value("O objeto '" + campoNulo + "' está nulo."))
             .andExpect(jsonPath("$.path").value("/usuario/inserirUsuario"));
     }
     

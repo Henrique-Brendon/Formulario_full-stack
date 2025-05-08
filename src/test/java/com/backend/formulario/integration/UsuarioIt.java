@@ -62,59 +62,34 @@ public class UsuarioIt {
         assertEquals("22", response.getBody().cepInfoDTO().numeroCasa());
     }
 
-        @Test
-    void deveRetornar400_QuandoUsuarioDTOForNulo() throws Exception {
-        UsuarioWithCepInfoDTOs payload = new UsuarioWithCepInfoDTOs(null, CEP_INFO_DTO);
-
+    @ParameterizedTest
+    @MethodSource("com.backend.formulario.testdata.UsuarioTestDataProvider#fornecerObjetosNulos")
+    void deveRetornar400_QuandoObjetosDTOForemNulos_IT(UsuarioDTO usuarioDTO, CepInfoDTO cepInfoDTO, String campoNulo) throws Exception {
+        UsuarioWithCepInfoDTOs payload = new UsuarioWithCepInfoDTOs(usuarioDTO, cepInfoDTO);
+    
         String url = "http://localhost:" + port + "/usuario/inserirUsuario";
-
+    
         HttpHeaders headers = new HttpHeaders();
         headers.setContentType(MediaType.APPLICATION_JSON);
-        
-        HttpEntity<String> request = new HttpEntity<>(objectMapper.writeValueAsString(payload), headers);
-        
-        ResponseEntity<String> response = restTemplate.exchange(
-            url,
-            HttpMethod.POST,
-            request,
-            String.class
-        );
-        
-
-        assertEquals(HttpStatus.BAD_REQUEST, response.getStatusCode());
-        assertNotNull(response.getBody());
-        assertTrue(response.getBody().contains("\"status\":400"));
-        assertTrue(response.getBody().contains("\"message\":\"O objeto 'UsuarioDTO' está nulo.\""));
-        assertTrue(response.getBody().contains("\"path\":\"/usuario/inserirUsuario\""));
-    }
-
-    @Test
-    void deveRetornar400_QuandoCepInfoDTOForNulo() throws Exception {
-        UsuarioWithCepInfoDTOs payload = new UsuarioWithCepInfoDTOs(USUARIO_DTO, null);
-
-        String url = "http://localhost:" + port + "/usuario/inserirUsuario";
-
-        HttpHeaders headers = new HttpHeaders();
-        headers.setContentType(MediaType.APPLICATION_JSON);
-
+    
         HttpEntity<String> request = new HttpEntity<>(
             objectMapper.writeValueAsString(payload),
             headers
         );
-
+    
         ResponseEntity<String> response = restTemplate.exchange(
             url,
             HttpMethod.POST,
             request,
             String.class
         );
-
+    
         assertEquals(HttpStatus.BAD_REQUEST, response.getStatusCode());
         assertNotNull(response.getBody());
         assertTrue(response.getBody().contains("\"status\":400"));
-        assertTrue(response.getBody().contains("\"message\":\"O objeto 'CepInfoDTO' está nulo.\""));
+        assertTrue(response.getBody().contains("\"message\":\"O objeto '" + campoNulo + "' está nulo.\""));
         assertTrue(response.getBody().contains("\"path\":\"/usuario/inserirUsuario\""));
-    }
+    }    
 
     @ParameterizedTest
     @MethodSource("com.backend.formulario.testdata.UsuarioTestDataProvider#fornecerCamposUsuarioVazio")

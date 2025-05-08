@@ -1,11 +1,21 @@
 package com.backend.formulario.testdata;
 
+import static com.backend.formulario.common.CepConstrants.CEP_INFO_DTO;
+import static com.backend.formulario.common.UsuarioConstrants.USUARIO_DTO;
+
 import java.time.Instant;
 import java.util.stream.Stream;
 
 import org.junit.jupiter.params.provider.Arguments;
 
 public class UsuarioTestDataProvider {
+
+    public static Stream<Arguments> fornecerObjetosNulos() {
+        return Stream.of(
+            Arguments.of(USUARIO_DTO, null, "CepInfoDTO"),
+            Arguments.of(null, CEP_INFO_DTO, "UsuarioDTO")
+        );
+    }
 
     public static Stream<Arguments> fornecerCamposUsuarioVazio() {
         return Stream.of(
